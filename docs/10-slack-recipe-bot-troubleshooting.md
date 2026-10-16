@@ -1,48 +1,34 @@
 # Slack Recipe Bot: troubleshooting
 
-Problems that can occur when connecting Slack to n8n, with the cause and the fix for each.
+Use this guide to diagnose common issues in the Slack → n8n → OpenAI → Slack workflow.
 
 ## Quick reference
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Channel dropdown in the Slack Trigger is empty, red warning on the node | The credential cannot list channels yet (missing scopes, app not reinstalled, or token not refreshed) | Add the scopes, reinstall the app, update the token in the n8n credential. Or switch **From list** to **By ID** and paste the channel ID |
-| Orange warning "Set up a webhook in your Slack app" | Slack has not been told where to send events | Configure **Event Subscriptions** with the n8n webhook URL |
-| Slack says the URL "didn't respond with the challenge parameter" | Socket Mode is on, the node is not listening (Test URL), or the workflow is not published (Production URL) | Turn Socket Mode off. For the Test URL, click Execute first and then Retry. For the Production URL, publish first and then Retry |
-| "HTTP error" next to the Request URL after pasting the Production URL | The workflow is not published, so the production webhook does not exist | Publish the workflow, then click **Retry** in Slack |
-| Messages posted in Slack get no reaction while using *Execute* | The Test URL listens for one event only, and verification used it up | Click **Execute** again before each message, or test on the published workflow |
-| Same, but Slack's Request URL is the Production URL and the workflow is unpublished | Slack sends events to the Production URL, which is down while unpublished | Publish and test there, or switch the Request URL to the Test URL while debugging |
-| Reply contains `{{ $json.recipe }}` literally | The field is in **Fixed** mode, not **Expression** | Hover the field and choose **Expression** (the **fx** badge appears) |
-| "Problem running workflow: n8n can't listen for test executions at the same time as production" | *Execute* was clicked while the workflow is published | Do not use Execute while published. Test from Slack and read the Executions tab, or unpublish first |
-| The bot answers itself repeatedly | The loop guard is missing or not connected | Make sure the `If` node (`bot_id` empty AND `subtype` empty) sits right after the trigger and only its **true** output continues |
-| Reply shows `**bold**` with literal asterisks | Slack uses single-asterisk markup | Keep the Slack formatting line in the prompt (single asterisks, "•" bullets, no headings) |
-| Reply is empty or the Slack node fails on the channel | The channel expression is wrong, or the chain output was used for the channel | Use `{{ $('Edit Fields').item.json.channel }}` for the channel and `{{ $json.text }}` for the message |
-| LLM node fails with an authentication or quota error | Missing key or no billing credit on the OpenAI account | Check the OpenAI credential and the account's billing status |
-| Greetings or gibberish produce an invented ingredient list | The prompt has no rule for non-recipe input | Add the ordered response rules from the [workflow design](08-slack-recipe-bot-workflow-design.md) |
+| Slack Trigger channel list is empty | Missing scopes, app not reinstalled, or credential not refreshed | Verify scopes, reinstall the app if scopes changed, refresh the n8n credential, or configure the channel by ID |
+| Slack says the Request URL did not respond to the challenge | Socket Mode is enabled, the wrong URL is configured, or the workflow/listener is not active | Turn Socket Mode off; use the Test URL only while the test listener is waiting, or publish and use the Production URL |
+| Messages do not trigger a run | Event subscription or channel membership is missing | Enable Event Subscriptions, subscribe to `message.channels`, save changes, and invite the bot to the channel |
+| Workflow works in test but not after leaving the editor | Slack still points to the Test URL or workflow is unpublished | Publish the workflow and set Slack's Request URL to the Production URL |
+| Reply contains `{{ $json.recipe }}` literally | Field is in Fixed mode rather than Expression mode | Switch the field to Expression mode and confirm the `fx` indicator |
+| Bot repeatedly answers itself | The If guard is missing, incorrectly configured, or its false branch continues | Check that both `bot_id` empty and `subtype` empty conditions use AND, and only the true output continues |
+| Reply is empty or sent to the wrong channel | Channel mapping was lost after the LLM chain, or an expression is incorrect | Preserve `channel` in Edit Fields and use `{{ $('Edit Fields').item.json.channel }}` in the Slack destination |
+| OpenAI node fails with authentication/quota error | Credential, billing, or model access issue | Verify the OpenAI credential, account billing, and model availability |
+| Bot invents a recipe for a greeting or gibberish | Prompt-based classification is imperfect | Keep the ordered prompt rules; add deterministic validation before the LLM if stronger handling is needed |
+| Markdown appears with literal double asterisks | Slack formatting differs from standard Markdown | Follow the prompt's Slack formatting instruction: single asterisks for bold and bullet characters |
+| Duplicate replies appear | Slack event retry or duplicate delivery | Add event-level idempotency/deduplication; this is not implemented in the basic workflow |
 
-## Detailed notes
+## Event URL verification
 
-### Event URL verification
+Slack verifies a Request URL by sending a challenge. Check that the URL is complete and corresponds to a live n8n endpoint. For production, publish the workflow and use the Production URL. For testing, start the n8n test listener first and use the Test URL. Restore the Production URL after debugging.
 
-Slack sends a request containing a `challenge` value as soon as a Request URL is entered, and expects it echoed back. That only works when:
+## Inspect an execution
 
-1. Socket Mode is off;
-2. the URL is complete (these URLs are long and are easy to truncate when pasting);
-3. the matching n8n webhook is live: the Test URL while the editor is listening, or the Production URL while the workflow is published.
-
-If verification fails, fix the cause and click **Retry**. No change to the URL is needed.
-
-### One event per test run
-
-The Test URL answers a single request. The verification request itself counts, so after Slack verifies the Test URL, the listener stops. Click **Execute** again before posting the real test message.
-
-### Test versus production
-
-Slack can only point at one Request URL at a time. The Production URL is the one to leave configured. Switch to the Test URL only for short debugging sessions, and switch back afterwards.
-
-### Seeing what happened
-
-On a published workflow, open the **Executions** tab and select the run. Each node shows its input and output. Look for a red node first: Slack Trigger and `If` issues are usually about the event, and Basic LLM Chain issues are usually about the OpenAI credential or the prompt.
+1. Open the n8n **Executions** view.
+2. Open the failed or unexpected run.
+3. Find the first node with an error or unexpected output.
+4. Check the Slack Trigger payload, If condition result, Edit Fields output, LLM response, and Slack send node input.
+5. Avoid sharing screenshots containing tokens, private messages, or sensitive workspace information.
 
 ## Related documents
 

@@ -16,7 +16,7 @@ The workflow as built in n8n:
 | 2 | If | Flow control | Lets only human messages through |
 | 3 | Edit Fields | Data mapping | Captures the recipe name and the channel ID |
 | 4 | Basic LLM Chain | AI | Generates the ingredient list or a polite retry message |
-| 4a | OpenAI Chat Model | AI model | `gpt-4o-mini`, attached to the chain |
+| 4a | OpenAI Chat Model | AI model | the OpenAI Chat Model selected in the exported workflow (the published export reviewed for this package specifies `gpt-4.1-mini`; confirm against your live n8n instance before changing it) |
 | 5 | Slack: Send a message | Action | Posts the answer to the same channel |
 
 ## Node configuration
@@ -61,7 +61,7 @@ The `channel` field is kept here because the Basic LLM Chain output contains onl
 |---|---|
 | Source for Prompt | Define below |
 | Prompt | See below (Expression mode) |
-| Model | OpenAI Chat Model, `gpt-4o-mini` |
+| Model | OpenAI Chat Model, the configured OpenAI model |
 
 #### Prompt
 
@@ -154,6 +154,10 @@ flowchart TD
 - Configure the Slack signing secret on the trigger.
 - Use structured output (an output parser) and Slack Block Kit for richer formatting.
 - Rate limiting or per-user cooldowns to control cost.
+
+## Public template note
+
+The sanitized workflow template uses a placeholder channel and has credential references removed. After import, select your Slack and OpenAI credentials and configure the channel ID in the Slack Trigger. Do not assume a template is production-ready until you have run the verification tests in your own workspace.
 
 ## Related documents
 

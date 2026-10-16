@@ -35,7 +35,7 @@ Keep keys inside credentials. Do not paste them into node parameters or commit t
 
 ## 3. Build the workflow
 
-Create the five nodes as described in [workflow design](08-slack-recipe-bot-workflow-design.md):
+Import the sanitized template at `../flows/n8n/slack-recipe-bot.json` or create the nodes as described in [workflow design](08-slack-recipe-bot-workflow-design.md):
 
 `Slack Trigger` → `If` → `Edit Fields` → `Basic LLM Chain` (with `OpenAI Chat Model`) → `Slack: Send a message`
 
@@ -103,7 +103,7 @@ For most checks, publishing and reading the Executions tab is simpler.
 
 - Use a dedicated channel so only recipe requests reach the LLM.
 - Keep the `If` guard in place; it stops bot and system messages before any model call.
-- Choose a small model such as `gpt-4o-mini`.
+- Use the model configured and tested in your n8n instance; the exported workflow reviewed for this package specifies `gpt-4.1-mini`. Check availability and cost in your OpenAI account.
 
 ### Rotating credentials
 
@@ -115,8 +115,8 @@ For most checks, publishing and reading the Executions tab is simpler.
 
 1. In the workflow, open the **⋯** menu next to the workflow name and choose **Download**.
 2. Open the JSON in a text editor and search for `xoxb`, `sk-` and any other key patterns. n8n exports credential names and IDs, not secret values, but always check.
-3. Optionally replace the channel ID with a placeholder.
-4. Save the file as `flows/n8n/slack-recipe-bot.json` and commit it.
+3. Use a placeholder channel ID in the public template and configure your own channel after import. Remove unnecessary instance-specific metadata before publishing.
+4. Save the sanitized file as `flows/n8n/slack-recipe-bot.json` and commit it. The package template has credentials removed and is not preconnected to your workspace.
 
 ## Related documents
 
