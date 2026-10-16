@@ -4,10 +4,8 @@
 
 A Slack-native assistant built with n8n and OpenAI. A user posts a dish name in a Slack channel; n8n filters bot/system events, sends the recipe request to an LLM, and posts the response back to the originating channel.
 
-> This repository is only for the Slack Recipe Bot. It does not contain the separate student-enrollment ETL, Google Sheets/Gmail, or Python/Pandas projects.
-
 ## Architecture
-
+![Slack Recipe Bot Visual Blueprint](images/slack-recipe-bot-visual-blueprint.png)
 ![Slack Recipe Bot architecture](images/slack-recipe-bot-architecture.png)
 
 ```mermaid
@@ -89,7 +87,6 @@ n8n-slack-recipe-bot/
 The JSON in this package is a **sanitized import template**. Credentials are intentionally not embedded, and the channel is a placeholder. Select your own credentials and configure the channel after import. Node labels/settings can vary slightly across n8n versions.
 
 ## Documentation
-- [Slack Recipe Bot Visual Blueprint](images/slack-recipe-bot-visual-blueprint.png)
 - [Architecture](docs/07-slack-recipe-bot-architecture.md)
 - [Workflow design](docs/08-slack-recipe-bot-workflow-design.md)
 - [Setup and operations](docs/09-slack-recipe-bot-setup-and-operations.md)
