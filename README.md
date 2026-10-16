@@ -89,7 +89,7 @@ n8n-slack-recipe-bot/
 The JSON in this package is a **sanitized import template**. Credentials are intentionally not embedded, and the channel is a placeholder. Select your own credentials and configure the channel after import. Node labels/settings can vary slightly across n8n versions.
 
 ## Documentation
-
+- [Slack Recipe Bot Visual Blueprint](images/slack-recipe-bot-visual-blueprint.png)
 - [Architecture](docs/07-slack-recipe-bot-architecture.md)
 - [Workflow design](docs/08-slack-recipe-bot-workflow-design.md)
 - [Setup and operations](docs/09-slack-recipe-bot-setup-and-operations.md)
